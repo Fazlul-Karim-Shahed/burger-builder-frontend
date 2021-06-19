@@ -1,0 +1,50 @@
+@media only screen and (max-width: 600px) {
+  .total {
+    width: 95%;
+    margin: auto;
+    background-color: rgb(50, 170, 102);
+    border: 1px double pink;
+    border-radius: 7px;
+    
+  }
+
+   .form{
+    padding: 20px;
+    color: blanchedalmond;
+    
+  }
+  
+}
+
+@media only screen and (min-width: 600px) {
+  .total {
+    background-color: seagreen;
+    width: 70%;
+    margin: auto;
+    border: 1px double pink;
+    border-radius: 7px;
+  }
+   .form{
+    padding: 20px;
+    color: blanchedalmond;
+    
+  }
+}
+
+@media only screen and (min-width: 1000px) {
+  .total {
+    background-color: rgb(9, 65, 33);
+    width: 50%;
+    margin: auto;
+    border: 1px double pink;
+    border-radius: 7px;
+   
+  }
+
+  .form{
+    padding: 20px;
+    color: blanchedalmond;
+    
+  }
+
+}

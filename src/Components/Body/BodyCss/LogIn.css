@@ -1,0 +1,39 @@
+@media only screen and (max-width: 600px) {
+  .all {
+    width: 95%;
+    margin: auto;
+    background-color: #D70F64;
+    border-radius: 10px;
+    border: 1px double;
+  }
+  .loginWarning {
+    background-color: blanchedalmond;
+    color: red;
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  .all {
+    background-color: #D70F64;
+    width: 70%;
+    margin: auto;
+    border-radius: 10px;
+  }
+  .loginWarning {
+    background-color: blanchedalmond;
+    color: red;
+  }
+}
+
+@media only screen and (min-width: 1000px) {
+  .all {
+    background-color: #D70F64;
+    width: 50%;
+    border-radius: 10px;
+    border: 3px solid white;
+  }
+  .loginWarning {
+    background-color: blanchedalmond;
+    color: red;
+  }
+}
