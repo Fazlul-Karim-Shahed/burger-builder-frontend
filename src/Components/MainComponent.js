@@ -1,40 +1,51 @@
-import React, { Component } from 'react'
-import Body from './Body/Body'
-import Header from './Header/Header'
-import Footer from './Footer/Footer'
+import React from 'react'
 import { connect } from 'react-redux'
+import { checkAuth, fetchIngredientFromLocal, fetchOrders } from '../Authentication/AuthFunctions'
+import { CHECK_AUTH, FETCH_INGREDIENT, FETCH_ORDERS } from '../Redux/ActionType'
+import Body from './Body/Body'
+import Footer from './Footer/Footer'
+import Header from './Header/Header'
 
-const mapStateToprops = state => {
-    return {
 
-    }
+const mapStateToProps = state => {
+  return {
+    totalIngredient: state.totalIngredient,
+
+  }
 }
+function MainComponent(props) {
 
-class MainComponent extends Component {
 
-    componentDidMount() {
+  props.dispatch({
+    type: CHECK_AUTH,
+    value: checkAuth()
+  })
 
-        
-        let token = localStorage.getItem("token")
-        let localId = localStorage.getItem("userId")
-        let logTime = localStorage.getItem("logTime")
-        let expireTime = localStorage.getItem("expireTime")
-        this.props.dispatch({
-            type: "CheckAuth",
-            authenticated: new Date() < new Date(expireTime) ? true : false
+  props.dispatch({
+    type: FETCH_INGREDIENT,
+    value: fetchIngredientFromLocal()
+  })
+
+  if (localStorage.getItem('token') != null) {
+    fetchOrders()
+
+      .then(data => {
+        props.dispatch({
+          type: FETCH_ORDERS,
+          value: data
         })
+      })
 
-    }
+  }
 
-    render() {
-        return (
-            <div >
-                <Header />
-                <Body />
-                <Footer />
-            </div>
-        )
-    }
+
+  return (
+    <div>
+      <Header />
+      <Body />
+      <Footer />
+    </div>
+  )
 }
 
-export default connect(mapStateToprops)(MainComponent)
+export default connect(mapStateToProps)(MainComponent)

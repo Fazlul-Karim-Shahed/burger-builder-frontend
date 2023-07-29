@@ -1,40 +1,40 @@
 import React from 'react'
-import { Route, Redirect, Switch } from 'react-router-dom'
-import Home from '../Body/Home'
-import About from '../Body/About'
-import Burger from '../Body/Burger'
-import Contact from '../Body/Contact'
-import ProceedForm from './ProceedForm'
-import Cart from './Cart'
-import LogIn from './LogIn'
 import { connect } from 'react-redux'
-import LogOut from './Logout'
+import { Route, Routes } from 'react-router'
+import AuthenticationForm from '../../Authentication/AuthenticationForm'
+import Logout from '../../Authentication/Logout'
+import About from './About'
+import Burger from './Burger'
+import Contact from './Contact'
+import Orders from './Orders'
+import ProceedForm from './ProceedForm'
+import Profile from './Profile'
 
-const mapStateToprops = state => {
-    return {
-        authenticated: state.authenticated
-    }
-}
+const mapStateToProps = (state) => ({
+  authenticated: state.authenticated
+})
 
-function Body(props) {
-
-    let router =  <div>
-        <Route exact path="/" component={Home} />
-        <Route path="/form" component={ProceedForm} />
-        <Route path="/cart" component={Cart} />
-        <Route path="/burger" component={Burger} />
-        <Route path="/about" component={About} />
-        <Route path="/contact" component={Contact} />
-        
-        {props.authenticated ? <Route path="/logout" component={LogOut} /> : <Route path="/login" component={LogIn} />}
-
+const BurgerBuilder = (props) => {
+  return (
+    <div>
+      <Routes>
+        <Route path='/' element={<Burger />} />
+        <Route path='/burger' element={<Burger />} />
+        <Route path='/contact' element={<Contact />} />
+        <Route path='/about' element={<About />} />
+        <Route path='/proceed-form' element={<ProceedForm />} />
+        <Route path='/login' element={<AuthenticationForm />} />
+        <Route path='/logout' element={<Logout />} />
+        <Route path='*' element={<h1>Sorry page not found</h1>} />
+        {props.authenticated ? <Route path='/profile' element={<Profile />} /> : ''}
+        {props.authenticated ? <Route path='/orders' element={<Orders />} /> : ''}
+      </Routes>
     </div>
-
-    return (
-        <div>
-            {router}
-        </div>
-    )
+  )
 }
 
-export default connect(mapStateToprops)(Body)
+
+
+
+
+export default connect(mapStateToProps)(BurgerBuilder)

@@ -1,7 +1,8 @@
-import React from 'react'
+
+import {createStore} from 'redux'
 import Reducer from './Reducer'
-import { createStore } from 'redux'
 
-const globalStore = createStore(Reducer)
 
-export default globalStore
+const store = createStore(Reducer)
+
+export default store

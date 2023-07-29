@@ -1,175 +1,124 @@
-import React from 'react'
-import { LocalForm, Errors, Control } from 'react-redux-form'
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import {Link} from 'react-router-dom'
-import { Button, Form, FormGroup, Label, Col, Alert } from 'reactstrap';
-import Spinner from './Spinner'
-import './BodyCss/proceedForm.css'
-import jwtDecode from 'jwt-decode';
+import axios from 'axios'
+import { fetchIngredientFromLocal, fetchOrders } from '../../Authentication/AuthFunctions'
+import { FETCH_INGREDIENT, FETCH_ORDERS } from '../../Redux/ActionType'
+import jwtDecode from 'jwt-decode'
 
-const mapDispatchToProps = state => {
-    return {
-        price : state.price,
-        ingredientCount : state.ingredientCount,
-        spinner : state.spinner
-    }
+
+const mapStateToProps = (state) => {
+  return {
+    price: state.price,
+    selectedIngredient: state.selectedIngredient,
+    authenticated: state.authenticated
+  }
 }
 
-const required = value => value && value.length
+class ProceedForm extends Component {
 
-class ProceedForm extends React.Component {
-
-    state={
-        alert : "",
-        alertOpen : true
+  constructor(props) {
+    super(props)
+    const decoded = jwtDecode(localStorage.getItem('token'))
+    this.state = {
+      name: decoded.name,
+      email: decoded.email,
+      mobile: '',
+      address: '',
+      paymentMethod: 'bkash'
     }
+  }
 
-    toggle = () => {
-        this.setState({alertOpen : !this.state.alertOpen})
-    }
+  onChangeHandler = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value
+    })
+  }
 
-    submit = values => {
-        // console.log(values)
+  onSubmitHandler = (e) => {
 
-        const decoded = jwtDecode(localStorage.getItem("token"))
-        fetch(`https://myburgerbuilderapp.herokuapp.com/cart`, {
-            method : 'POST',
-            body: JSON.stringify({
-                userId: decoded._id ,
-                name : decoded.firstName + " " + decoded.lastName,
-                email: decoded.email,
-                orderTime: new Date().toLocaleString(),
-                items: this.props.ingredientCount,
-                price: this.props.price,
-                addressDetail: values
+    if (this.props.authenticated) {
+      localStorage.removeItem('selectedIngredient')
+      const decoded = jwtDecode(localStorage.getItem('token'))
+      console.log(decoded);
+      axios.post(process.env.REACT_APP_BACKEND_URL + `/order/`, {
+        userId: decoded._id,
+        name: this.state.name,
+        email: this.state.email,
+        mobile: this.state.mobile,
+        selectedIngredient: this.props.selectedIngredient,
+        price: this.props.price,
+        address: this.state.address,
+        paymentMethod: this.state.paymentMethod,
+        time: new Date().toLocaleString()
 
-            })
+      }).then(data => {
+        console.log(data.data);
+        fetchOrders().then(data => {
+          this.props.dispatch({
+            type: FETCH_ORDERS,
+            value: data
+          })
         })
-            .then(res => {
-                if (res.status === 200) {
-                    this.props.dispatch({
-                        type: "SPINNER",
-                        value: true
-                    })
-                    setTimeout(() => {
-                        this.props.dispatch({
-                            type: "SPINNER",
-                            value: false
-                        })
 
-                    }, 1000)
-
-                    this.setState({
-                        alert : "Successfully placed order"
-                    })
-                    this.props.history.push("/cart")
-
-                }
-                else {
-                    
-                    this.props.dispatch({
-                        type: "SPINNER",
-                        value: true
-                    })
-                    setTimeout(() => {
-                        this.props.dispatch({
-                            type: "SPINNER",
-                            value: false
-                        })
-
-                    }, 3000)
-
-                    this.setState({
-                        alert: "Something went wrong"
-                    })
-
-                }
-                // return res.json()
-            })
-            // .then(data => {})
-            
-                
-        
-
+        this.props.dispatch({
+          type: FETCH_INGREDIENT,
+          value: fetchIngredientFromLocal()
+        })
+      })
+        .catch(err => console.log(err))
     }
 
-    render() {
+    else alert('Authentication failed')
 
-       const decoded = jwtDecode(localStorage.getItem("token"))
-        return (
-            this.props.spinner ? <div><Spinner /></div> : <div className="total my-5">
-                {this.state.alert ? <Alert className="alert alert-success" isOpen={this.state.alertOpen} toggle={this.toggle}>
-                        {this.state.alert}
-                </Alert> : <div></div>}
-                <LocalForm onSubmit={values => this.submit(values)} className="form">
-                    <FormGroup row>
 
-                        <Col md={12}>
-                            <Control.text
-                                model=".firstName"
-                                name="firstName"
-                                value={decoded.firstName}
-                                
-                                className="form-control"
-                                 />
-                                
-                                
-                        </Col>
-                    </FormGroup>
-                    <FormGroup row>
-                        <Col md={12}>
-                            <Control.text
-                                model=".lastName"
-                                name="lastName"
-                                value={decoded.lastName}
-                                className="form-control"
-                                  />
-                            
-                        </Col>
-                    </FormGroup>
-                    <FormGroup row>
-                        <Col md={12}>
-                            <Control.text
-                                model=".email"
-                                name="email"
-                                value={decoded.email}
-                                className="form-control"
-                            />
+    this.setState({
+      name: '',
+      email: '',
+      mobile: '',
+      address: '',
+      paymentMethod: ''
+    })
 
-                        </Col>
-                    </FormGroup>
-                    <FormGroup row>
-                        
-                        <Col md={12}>
-                            <Control.textarea
-                                model=".address"
-                                name="address"
-                                placeholder="Address"
-                                className="form-control"
-                                validators={{
-                                    required
-                                }}  />
-                            <Errors
-                                className="text-danger"
-                                model=".address"
-                                messages={{
-                                    required: "Required"
-                                }} />
-                        </Col>
-                    </FormGroup>
-                    <FormGroup >
-                        <div className="text-center">
-                            <button className="btn btn-primary m-1" type="submit">Confirm order</button>
-                            <Link to="/burger" className="btn btn-danger m-1" type="cancel">Cancel</Link>
+    e.preventDefault()
 
-                        </div>
-                    </FormGroup>
+  }
 
-                </LocalForm>
 
-            </div>
-        )
-    }
+
+  render() {
+    return (
+      <div className='w-75 m-auto border p-3 bg-light my-lg-5 rounded'>
+        <form action="">
+          <div>
+            <label className=' form-label' htmlFor="name">Name: </label>
+            <input className='form-control' onChange={(e) => this.onChangeHandler(e)} value={this.state.name} type="text" name="name" id="" />
+          </div>
+          <div>
+            <label className=' form-label' htmlFor="email">Email: </label>
+            <input className=' form-control' onChange={(e) => this.onChangeHandler(e)} value={this.state.email} type="email" name="email" id="" />
+          </div>
+          <div>
+            <label className=' form-label' htmlFor="mobile">Mobile</label>
+            <input className=' form-control' onChange={(e) => this.onChangeHandler(e)} value={this.state.mobile} type="text" name="mobile" id="" />
+          </div>
+          <div>
+            <label className=' form-label' htmlFor="address">Address</label>
+            <input className=' form-control' onChange={(e) => this.onChangeHandler(e)} value={this.state.address} type="text" name="address" id="" />
+          </div>
+          <div>
+            <label className=' form-label' htmlFor="paymentMethod"></label>
+            <select className='form-select' onChange={(e) => this.onChangeHandler(e)} name="paymentMethod" id="">
+              <option value="bkash">Bkash</option>
+              <option value="nogod">Nogod</option>
+              <option value="cashOn">CashOn</option>
+            </select>
+          </div>
+          <button onClick={(e) => this.onSubmitHandler(e)} className='btn btn-outline-primary w-100 mt-4' type="submit">Submit</button>
+        </form>
+      </div>
+    )
+  }
 }
 
-export default connect(mapDispatchToProps)(ProceedForm)
+
+export default connect(mapStateToProps)(ProceedForm)

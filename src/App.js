@@ -1,10 +1,9 @@
-import React from 'react'
-import MainComponent from './Components/MainComponent'
-import './App.css'
+import React from "react";
+import MainComponent from "./Components/MainComponent";
 
 function App() {
   return (
-    <div className="m-0 p-0 overflow-hidden">
+    <div className="App">
       <MainComponent />
     </div>
   );

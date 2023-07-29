@@ -1,108 +1,100 @@
-import { Redirect } from 'react-router-dom'
-const initialState = {
+import { ADD_INGREDIENT, CHANGE_ORDER_SUMMERY_MODAL, CHECK_AUTH, FETCH_INGREDIENT, FETCH_ORDERS, REMOVE_INGREDIENT } from "./ActionType"
 
-    stateArray: [],
-    price: 80,
-    itemprices: {
-        salad: 50,
-        meat: 100,
-        cheese: 150
+const initialState = {
+    totalIngredient: [{
+        name: 'salad',
+        price: 100
     },
-    ingredientCount: {
-        salad: 0,
-        meat: 0,
-        cheese: 0
+    {
+        name: 'meat',
+        price: 250
     },
-    cartArray: [],
-    localId : null,
-    idToken : null,
-    authenticated : false,
-    spinner : false
-   
+    {
+        name: 'cheese',
+        price: 50
+    },
+
+    ],
+    selectedIngredient: [],
+    orderSummeryModal: false,
+    authenticated: false,
+    price: 0,
+    orders: []
 }
+
 
 const Reducer = (state = initialState, action) => {
-    
-    
-    if (action.type === "ADD_INGREDIENT"){
-        state.stateArray.push(action.value)
-        const stateArray = [...state.stateArray]
-        return{
-            ...state,
-            stateArray
-        }
-    }
 
-    if (action.type === "REMOVE_INGREDIENT") {
-        const stateArray = action.value
-        return{
-            ...state,
-            stateArray
+    if (action.type === ADD_INGREDIENT) {
 
-        }
-    }
+        let x = [...state.selectedIngredient]
+        x.push(action.value)
+        console.log(state.price);
 
-    if (action.type === "COUNT_INGREDIENT"){
-        return{
-            ...state,
-            ingredientCount : {
-                salad : action.value.salad,
-                meat: action.value.meat,
-                cheese: action.value.cheese,
-            }
-        }
-    }
-
-    if (action.type === "UPDATE_PRICE"){
         return {
             ...state,
-            price : action.value
+            selectedIngredient: [...x]
         }
-
     }
 
-    
-    if (action.type === "CheckAuth"){
+    if (action.type === FETCH_INGREDIENT) {
+
+        let price = 0;
+        for (var i of state.totalIngredient) {
+            [...action.value].forEach(name => {
+                if (name === i.name) {
+                    price = price + i.price
+                }
+            })
+        }
+
+        console.log();
+
         return {
             ...state,
-            authenticated : action.authenticated  
+            selectedIngredient: [...action.value],
+            price: price
         }
     }
 
-    if (action.type === "fastCheck"){
-        let expireTime = localStorage.getItem("expireTime")
+    if (action.type === REMOVE_INGREDIENT) {
 
-        return{
+        let x = [...state.selectedIngredient]
+        x.splice(x.lastIndexOf(action.value), 1)
+        console.log(state.price);
+        return {
             ...state,
-            authenticated: new Date() < new Date(expireTime) ? true : false
+            selectedIngredient: x
+
         }
     }
 
-    if (action.type === "LOGOUT"){
-        return{
+    if (action.type === CHANGE_ORDER_SUMMERY_MODAL) {
+        console.log(state.orderSummeryModal);
+        return {
             ...state,
-            authenticated : false
+            orderSummeryModal: action.value
         }
     }
 
-    if(action.type === "CART"){
-        
-        const cartArray = [...action.cartArray]
-        return{
+    if (action.type === CHECK_AUTH) {
+
+        return {
             ...state,
-            cartArray
+            authenticated: action.value
         }
     }
 
-    if(action.type === "SPINNER"){
-        return{
+    if (action.type === FETCH_ORDERS) {
+        // console.log(action.value);
+        return {
             ...state,
-            spinner : action.value
+            orders: [...action.value]
         }
     }
-   
+
     return state
-
 }
+
 
 export default Reducer

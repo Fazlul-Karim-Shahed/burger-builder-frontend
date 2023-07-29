@@ -1,0 +1,9 @@
+@media only screen and (max-width: 768px) {
+    .navigation_auth_link {
+        flex-direction: column;
+    }
+}
+
+.link:hover {
+    color: coral;
+}
